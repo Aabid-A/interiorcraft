@@ -50,4 +50,3 @@ const gbp = new Intl.NumberFormat("en-GB", { style: "currency", currency: "GBP" 
 export function formatBasketPrice(pence: number): string {
   return gbp.format(pence / 100);
 }
-
