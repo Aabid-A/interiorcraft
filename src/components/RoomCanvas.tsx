@@ -13,6 +13,7 @@ import {
 } from "three";
 import { useRoomStore, type EnvironmentPreset, type FloorMaterial } from "@/store/useRoomStore";
 import { PlacedItemMesh } from "@/components/PlacedItemMesh";
+import { CanvasLoader } from "@/components/ui/Loader";
 
 const WALL_HEIGHT = 2.5;
 
@@ -292,6 +293,7 @@ export default function RoomCanvas({ onCaptureReady }: { onCaptureReady: Capture
           ))}
         </Suspense>
       </Canvas>
+      <CanvasLoader />
     </div>
   );
 }

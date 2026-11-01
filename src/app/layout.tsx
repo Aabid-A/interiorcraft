@@ -7,6 +7,7 @@ import "./home.css";
 import "./scan.css";
 import { Analytics } from "@vercel/analytics/next";
 import Offline from "@/components/Offline";
+import { CatalogPreviewHost } from "@/components/CatalogPreviewHost";
 import { SITE_URL } from "@/lib/site";
 import { cn } from "@/lib/utils";
 
@@ -49,6 +50,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
     <html lang="en" className={cn(noto.variable, display.variable, "font-sans", geist.variable)}>
       <body className="animate-fade-in">
         {children}
+        <CatalogPreviewHost />
         <Analytics />
         {/* Plausible, served through our own domain (see the rewrites in next.config.ts) so the CSP stays self-only */}
         <Script src="/pl/script.js" data-domain="usebygga.com" data-api="/pl/event" strategy="afterInteractive" />
