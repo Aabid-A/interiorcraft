@@ -1,0 +1,34 @@
+// Run: node --experimental-transform-types --no-warnings --import ./scripts/voice/register.mjs scripts/build-room-catalog.ts
+import { writeFileSync } from "node:fs";
+import { catalogEntry } from "../src/lib/catalog";
+import { IKEA_ITEMS } from "../src/data/ikea-items";
+
+const products: Record<string, {
+  name: string;
+  category: string;
+  title: string;
+  price: null;
+  dimensions: { width: number; height: number; depth: number };
+}> = {};
+
+for (const line of IKEA_ITEMS.split("\n")) {
+  const [slug, articles] = line.split("|");
+  const entry = catalogEntry(slug);
+  if (!entry || !articles) continue;
+  const { w, h, d } = entry.size;
+  if (![w, h, d].every((value) => Number.isFinite(value) && value > 0)) continue;
+  for (const article of articles.split(" ")) {
+    if (!/^\d{8}$/.test(article) || products[article]) continue;
+    products[article] = {
+      name: entry.name,
+      category: entry.category,
+      title: `${entry.name}, ${entry.variant}`,
+      // The source metadata deliberately does not retain prices.
+      price: null,
+      dimensions: { width: w / 100, height: h / 100, depth: d / 100 },
+    };
+  }
+}
+
+writeFileSync(new URL("../src/data/room-catalog.json", import.meta.url), `${JSON.stringify(products)}\n`);
+console.log(`Built room catalog for ${Object.keys(products).length} articles.`);

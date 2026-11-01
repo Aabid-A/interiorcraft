@@ -1,19 +1,19 @@
 import type { NextConfig } from "next";
 
 /*
- * Everything the site loads comes from itself: scripts, fonts (next/font), the voice clips and analytics
- * (Plausible is proxied under /pl, see the rewrites below).
+ * Scripts, fonts (next/font), voice clips and analytics come from the site itself
+ * (Plausible is proxied under /pl, see the rewrites below). Connections also allow gstatic and blobs.
  * Inline scripts stay allowed because the pages are prerendered and can't carry a per-request nonce.
  */
 const CSP = [
   "default-src 'self'",
-  // dev adds eval for fast refresh and Vercel Analytics' debug script, which production serves from the site itself
-  `script-src 'self' 'unsafe-inline'${process.env.NODE_ENV === "production" ? "" : " 'unsafe-eval' https://va.vercel-scripts.com"}`,
+  // eval is allowed in all environments; dev also allows Vercel Analytics' debug script
+  `script-src 'self' 'unsafe-inline' 'unsafe-eval'${process.env.NODE_ENV === "production" ? "" : " https://va.vercel-scripts.com"}`,
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob:",
   "media-src 'self' blob: data:",
   "font-src 'self' data:",
-  "connect-src 'self'",
+  "connect-src 'self' https://www.gstatic.com blob:",
   "worker-src 'self' blob:",
   "object-src 'none'",
   "base-uri 'self'",
@@ -45,7 +45,7 @@ const nextConfig: NextConfig = {
   async headers() {
     return [
       {
-        source: "/:path*",
+        source: "/(.*)",
         headers: SECURITY,
       },
       {

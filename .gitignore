@@ -56,3 +56,7 @@ next-env.d.ts
 
 # local agent sessions and worktrees
 .claude/
+
+# downloaded product models (npm run models:scrape)
+/public/models/
+/processed_ids.log

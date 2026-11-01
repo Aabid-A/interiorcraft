@@ -1,14 +1,16 @@
 import { Suspense } from "react";
 import type { Metadata, Viewport } from "next";
 import Script from "next/script";
-import { Noto_Sans, Noto_Sans_Display } from "next/font/google";
+import { Noto_Sans, Noto_Sans_Display, Geist } from "next/font/google";
 import "./globals.css";
-import "./guide.css";
 import "./home.css";
 import "./scan.css";
 import { Analytics } from "@vercel/analytics/next";
 import Offline from "@/components/Offline";
 import { SITE_URL } from "@/lib/site";
+import { cn } from "@/lib/utils";
+
+const geist = Geist({subsets:['latin'],variable:'--font-sans'});
 
 const noto = Noto_Sans({
   subsets: ["latin", "latin-ext"],
@@ -44,8 +46,8 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={`${noto.variable} ${display.variable}`}>
-      <body>
+    <html lang="en" className={cn(noto.variable, display.variable, "font-sans", geist.variable)}>
+      <body className="animate-fade-in">
         {children}
         <Analytics />
         {/* Plausible, served through our own domain (see the rewrites in next.config.ts) so the CSP stays self-only */}

@@ -1,151 +1,74 @@
-import type { Metadata } from "next";
-import Link from "next/link";
-import SiteHeader from "@/components/SiteHeader";
-import SiteFooter from "@/components/SiteFooter";
-import HeroStage from "@/components/home/HeroStage";
-import { HeroSearch } from "@/components/home/HomeClient";
-import Resume from "@/components/home/Resume";
-import { Catalog } from "@/components/home/Sections";
-import Compare from "@/components/home/Compare";
-import { Figure } from "@/components/art/Figure";
-import { ToolArt } from "@/components/art/Tools";
-import { HwArt } from "@/components/art/Hardware";
-import { IArrowOut, IArrowRight, IScan } from "@/components/art/Icons";
-import { TogetherMark } from "@/components/art/Together";
-import { PRODUCT_COUNT } from "@/lib/search";
-import { SCAN_ENABLED } from "@/lib/site";
+"use client";
 
-export const metadata: Metadata = { alternates: { canonical: "/" } };
+import dynamic from "next/dynamic";
+import { useCallback, useState } from "react";
+import { MousePointer2, Rotate3D } from "lucide-react";
+import { Logo } from "@/components/ui/Logo";
+import { FurnitureCatalog } from "@/components/FurnitureCatalog";
+import { ProjectControls } from "@/components/ProjectControls";
+import { StatsOverlay } from "@/components/StatsOverlay";
+import { useRoomStore } from "@/store/useRoomStore";
+import { RoomConfiguration } from "@/components/RoomConfiguration";
+import { LightingPopover } from "@/components/LightingPopover";
 
-const QUICK = [
-  { slug: "kallax-2x2", label: "KALLAX" },
-  { slug: "bissa-shoe-cabinet-2-compartments", label: "BISSA" },
-  { slug: "malm-3-drawers", label: "MALM" },
-  { slug: "poang-armchair", label: "POÄNG" },
-  { slug: "billy-80x202", label: "BILLY" },
-];
+const RoomCanvas = dynamic(() => import("@/components/RoomCanvas"), {
+  ssr: false,
+  loading: () => <div className="flex h-full items-center justify-center gap-3 text-sm text-emerald-800" role="status"><Logo /> Preparing your space...</div>,
+});
 
 export default function Home() {
+  const [captureImage, setCaptureImage] = useState<(() => string) | null>(null);
+  const onCaptureReady = useCallback((capture: (() => string) | null) => {
+    setCaptureImage(() => capture);
+  }, []);
+  const dimensions = useRoomStore((state) => state.roomDimensions);
+  const floorMaterial = useRoomStore((state) => state.floorMaterial);
+  const placedItems = useRoomStore((state) => state.placedItems);
+
   return (
-    <div className="site">
-      <SiteHeader />
-
-      <section className="hero">
-        <div className="hero-copy">
-          <a className="tg-pill" href="https://togetherai.link/" target="_blank" rel="noreferrer">
-            <span className="tg-badge">
-              <TogetherMark size={16} />
-            </span>
-            <span className="tg-text">
-              Powered by <b>Together AI</b>
-            </span>
-            <IArrowOut size={14} className="tg-go" />
-          </a>
-          <h1>
-            Build IKEA furniture,
-            <br />
-            step by step.
-          </h1>
-          <p className="lead">Type the name from the box. Each step plays in 3D and is read out loud, with the parts, screws and tools it needs.</p>
-          <HeroSearch />
-          <div className="quick">
-            <span>Try</span>
-            {QUICK.map((q) => (
-              <Link key={q.slug} href={`/build/${q.slug}`} className="chip">
-                {q.label}
-              </Link>
-            ))}
+    <main className="relative flex h-dvh flex-row overflow-hidden bg-slate-100 text-stone-900 selection:bg-emerald-100 selection:text-emerald-950 lg:h-dvh-row lg:overflow-hidden">
+      {/* Keep a transitioning width in flow when the sidebar becomes absolute. */}
+      <div className={`relative block h-full shrink-0 transition-[width] duration-700 ease-in-out motion-reduce:transition-none w-[300px]`}>
+        <aside aria-label="Room configuration and estimate" className={`z-20 flex h-full w-[300px] flex-col overflow-y-auto overscroll-contain border-r border-slate-200 bg-white/90 shadow-xl backdrop-blur-md transition-transform duration-700 ease-in-out motion-reduce:transition-none [scrollbar-color:#94a3b8_#f8fafc] relative translate-x-0`}>
+          <header className="flex items-center gap-3 border-b border-stone-200 px-6 py-6">
+            <Logo />
+            <div><h1 className="text-lg text-slate-900 font-bold tracking-tight">Makan3D</h1><p className="text-xs text-stone-500">A space to make your own</p></div>
+          </header>
+          <RoomConfiguration />
+          <footer className="mt-auto flex items-center justify-between border-t border-stone-200 px-6 py-4 text-xs text-stone-500"><span>{placedItems.length} items placed</span><span>Makan3D</span></footer>
+        </aside>
+      </div>
+      <section aria-label="Interactive 3D room" className={`relative isolate flex min-h-0 min-w-0 flex-1 flex-col transition-[padding] duration-700 ease-in-out motion-reduce:transition-none lg:h-full lg:pb-0 pb-0`}>
+        <div className="absolute right-4 top-4 z-30 flex items-start gap-2 xl:right-8">
+          <LightingPopover />
+        </div>
+        <div className="grid shrink-0 grid-rows-[1fr]">
+          <div className="min-h-0 overflow-hidden">
+            <header className="z-10 flex shrink-0 items-center justify-between gap-3 border-b border-slate-200 bg-white/80 py-4 pl-5 pr-32 xl:pl-8 xl:pr-36">
+              <div><h2 className="text-sm font-semibold">NewSpace</h2><p className="mt-1 text-xs tabular-nums text-stone-600">{dimensions.widthMeters.toFixed(1)} m × {dimensions.depthMeters.toFixed(1)} m <span className="mx-1">·</span> {(dimensions.widthMeters * dimensions.depthMeters).toFixed(1)} m²</p></div>
+              <span className="hidden items-center gap-2 text-xs font-medium text-stone-600 sm:flex lg:hidden xl:flex"><Rotate3D size={16} aria-hidden="true" /> 3D view</span>
+            </header>
           </div>
-          <Resume />
-          {SCAN_ENABLED && (
-            <Link href="/scan" className="scan-link">
-              <IScan size={17} />
-              <span>
-                Not from IKEA? <u>Scan its paper manual</u>
-              </span>
-            </Link>
-          )}
         </div>
-        <HeroStage />
-      </section>
-
-      <section className="how" id="how">
-        <h2 className="sec-title">How it works</h2>
-        <ol className="how-steps">
-          <li>
-            <span className="how-n">1</span>
-            <div className="how-art">
-              <svg viewBox="0 0 220 150" width="220" height="150" aria-hidden="true">
-                <path d="M30 60 L110 84 L190 60 L190 128 L110 150 L30 128 Z" fill="#fff" stroke="var(--ink)" strokeWidth="2.4" strokeLinejoin="round" />
-                <path d="M110 84 V150" stroke="var(--ink)" strokeWidth="2.2" />
-                <path d="M30 60 L110 38 L190 60" fill="#f2f0eb" stroke="var(--ink)" strokeWidth="2.2" strokeLinejoin="round" />
-                <g transform="translate(122 98) skewY(-15)">
-                  <rect x="0" y="0" width="56" height="26" rx="3" fill="var(--accent)" stroke="var(--ink)" strokeWidth="2" />
-                  <text x="28" y="18" textAnchor="middle" fontSize="12" fontWeight="800" fill="var(--ink)" fontFamily="var(--font)">
-                    KALLAX
-                  </text>
-                </g>
-              </svg>
-              <span className="how-fig">
-                <Figure pose="point" size={84} />
-              </span>
-            </div>
-            <h3>Type the name</h3>
-            <p>It&apos;s the big word on the box label, like KALLAX, or the number under it, like 802.758.87. Or snap a photo of it.</p>
-          </li>
-          <li>
-            <span className="how-n">2</span>
-            <div className="how-art tools">
-              <span style={{ transform: "rotate(-10deg)" }}>
-                <ToolArt id="screwdriver" size={82} />
-              </span>
-              <span style={{ transform: "translateY(-10px)" }}>
-                <ToolArt id="hammer" size={88} />
-              </span>
-              <span style={{ transform: "rotate(8deg)" }}>
-                <ToolArt id="allen" size={72} />
-              </span>
-              <span className="how-hw">
-                <HwArt kind="dowel" len={30} dia={8} fit={44} />
-                <b>8&times;</b>
-              </span>
-            </div>
-            <h3>Check tools and parts</h3>
-            <p>One tap if everything&apos;s there. Missing a piece? We&apos;ll tell you what to do.</p>
-          </li>
-          <li>
-            <span className="how-n">3</span>
-            <div className="how-art step">
-              <svg viewBox="0 0 200 140" width="200" height="140" aria-hidden="true">
-                <path d="M30 96 L120 120 L176 96 L86 72 Z" fill="#fff" stroke="var(--ink)" strokeWidth="2.2" strokeLinejoin="round" />
-                <path d="M30 96 V104 L120 128 V120 M120 128 L176 104 V96" fill="none" stroke="var(--ink)" strokeWidth="2.2" strokeLinejoin="round" />
-                <g className="how-drop">
-                  <path d="M92 18 L104 22 L104 82 L92 78 Z" fill="var(--accent-soft)" stroke="var(--ink)" strokeWidth="2.2" strokeLinejoin="round" />
-                  <path d="M104 22 L150 8 L150 68 L104 82" fill="#fff" stroke="var(--ink)" strokeWidth="2.2" strokeLinejoin="round" />
-                  <path d="M92 18 L138 4 L150 8" fill="none" stroke="var(--ink)" strokeWidth="2.2" strokeLinejoin="round" />
-                </g>
-                <path d="M70 26 v26 h-7 l11 13 l11 -13 h-7 v-26 z" fill="var(--ink)" stroke="#fff" strokeWidth="2" strokeLinejoin="round" />
-              </svg>
-            </div>
-            <h3>Follow each step</h3>
-            <p>Every step plays in 3D, with each screw shown up close. Drag to see any side.</p>
-          </li>
-        </ol>
-      </section>
-
-      <section className="popular" id="popular">
-        <div className="sec-head">
-          <h2 className="sec-title">Popular builds</h2>
-          <Link href="/browse" className="sec-link">
-            All {PRODUCT_COUNT.toLocaleString("en-US")} products <IArrowRight size={15} />
-          </Link>
+        <div className="grid shrink-0 grid-rows-[1fr]">
+          <div className="min-h-0 overflow-hidden">
+            <ProjectControls captureImage={captureImage} />
+          </div>
         </div>
-        <Catalog limit={9} />
+        <div className="relative min-h-0 min-w-0 flex-1"><RoomCanvas onCaptureReady={onCaptureReady}  /><StatsOverlay /></div>
+        <div className="grid shrink-0 grid-rows-[1fr]">
+          <div className="min-h-0 overflow-hidden">
+            <footer className="hidden shrink-0 flex-wrap items-center justify-between gap-2 border-t border-slate-200 bg-white/80 px-5 py-3 text-xs text-stone-600 xl:px-8">
+              <span className="flex items-center gap-2"><MousePointer2 size={14} aria-hidden="true" /> Drag to orbit · Scroll to zoom · Right-drag to pan</span><span>{floorMaterial === "grid" ? "Grid: 0.3 m" : floorMaterial === "tile" ? "Tiles: 0.6 m" : floorMaterial === "wood" ? "Wood floor" : "Concrete floor"}</span>
+            </footer>
+          </div>
+        </div>
       </section>
-
-      <Compare />
-
-      <SiteFooter />
-    </div>
+      <div className={`relative block h-full shrink-0 justify-end transition-[width] duration-700 ease-in-out motion-reduce:transition-none w-[380px] 2xl:w-[400px]`}>
+        <aside aria-label="Furniture catalog" className={`flex h-full w-[380px] shrink-0 flex-col border-l border-slate-200 bg-white/90 shadow-xl transition-transform duration-700 ease-in-out motion-reduce:transition-none 2xl:w-[400px] relative translate-x-0`}>
+          <FurnitureCatalog />
+        </aside>
+      </div>
+    </main>
   );
 }
