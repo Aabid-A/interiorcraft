@@ -5,6 +5,7 @@ export interface CatalogProduct {
   name: string;
   category: string;
   title: string;
+  thumbnail?: string;
   price: number | null;
   currency: string;
   /** Bounding dimensions in meters. */
@@ -15,6 +16,7 @@ type CatalogData = Record<string, {
   name: string;
   category: string;
   title: string;
+  thumbnail?: string;
   price: { amount: number; currency: string } | null;
   dimensions: { width: number; height: number; depth: number };
 }>;
@@ -25,6 +27,7 @@ export function catalogProduct(articleNumber: string, product: CatalogData[strin
     name: product.name,
     category: product.category,
     title: product.title,
+    thumbnail: product.thumbnail,
     price: product.price?.amount ?? null,
     currency: product.price?.currency ?? "GBP",
     dimensions: {

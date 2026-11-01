@@ -1,15 +1,16 @@
 "use client";
 
-import { Component, Suspense, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode, type RefObject } from "react";
+import { Component, Suspense, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode, type RefObject } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { PerspectiveCamera, View, useGLTF } from "@react-three/drei";
 import { Box3, PerspectiveCamera as ThreePerspectiveCamera, Vector3, type Material, type Mesh } from "three";
 import { clone } from "three/examples/jsm/utils/SkeletonUtils.js";
 import { observeCatalogVisibility } from "@/lib/catalogVisibility";
+import { useDebounce } from "@/lib/useDebounce";
 import { disableCatalogPreviews, registerCatalogView, useCatalogPreviewStore } from "@/store/useCatalogPreviewStore";
 
 const loadedPreviewPaths = new Set<string>();
-const previewRevealDuration = 500;
+const previewRevealDuration = 300;
 
 class PreviewErrorBoundary extends Component<
   { children: ReactNode; onError?: () => void },
@@ -34,7 +35,6 @@ function PreviewAsset({ modelPath, onLoaded }: { modelPath: string; onLoaded: ()
   // useGLTF resumes only after the file and its dependent resources are parsed.
   const { scene } = useGLTF(modelPath);
   const invalidate = useThree((state) => state.invalidate);
-  const [needsReveal] = useState(() => !loadedPreviewPaths.has(modelPath));
   const reveal = useRef<{
     started: number;
     update: (progress: number) => void;
@@ -54,7 +54,7 @@ function PreviewAsset({ modelPath, onLoaded }: { modelPath: string; onLoaded: ()
   }, [scene, modelPath]);
 
   useLayoutEffect(() => {
-    if (needsReveal && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
       const originals: { mesh: Mesh; material: Material | Material[] }[] = [];
       const materials = new Map<Material, Material>();
       const fadeMaterial = (original: Material) => {
@@ -96,7 +96,7 @@ function PreviewAsset({ modelPath, onLoaded }: { modelPath: string; onLoaded: ()
       reveal.current?.release();
       reveal.current = null;
     };
-  }, [fitted, modelPath, needsReveal, onLoaded, invalidate]);
+  }, [fitted, modelPath, onLoaded, invalidate]);
 
   useFrame(() => {
     const animation = reveal.current;
@@ -134,12 +134,19 @@ function PreviewCamera({ track }: { track: RefObject<HTMLDivElement | null> }) {
   return <PerspectiveCamera ref={camera} makeDefault fov={35} near={0.01} far={100} />;
 }
 
-export function CatalogModelPreview({ articleNumber, title, scrollRegion }: {
+export function CatalogModelPreview({ articleNumber, title, thumbnail, scrollRegion, index, total, style, children }: {
   articleNumber: string;
   title: string;
+  thumbnail: string;
   scrollRegion: RefObject<HTMLDivElement | null>;
+  index: number;
+  total: number;
+  style: CSSProperties;
+  children: (preview: ReactNode) => ReactNode;
 }) {
   const track = useRef<HTMLDivElement>(null);
+  const [isHovered, setIsHovered] = useState(false);
+  const [isFocused, setIsFocused] = useState(false);
   const [visible, setVisible] = useState(false);
   const modelPath = `/models/${articleNumber}.glb`;
   const [loadedPath, setLoadedPath] = useState<string | null>(() => loadedPreviewPaths.has(modelPath) ? modelPath : null);
@@ -149,6 +156,19 @@ export function CatalogModelPreview({ articleNumber, title, scrollRegion }: {
   const handleLoaded = useCallback(() => setLoadedPath(modelPath), [modelPath]);
   const handleError = useCallback(() => setFailedPath(modelPath), [modelPath]);
   const enabled = useCatalogPreviewStore((state) => state.enabled);
+  // A new request identity restarts the delay even after a quick leave and return.
+  const request = useMemo(() => ({ active: visible && enabled && (isHovered || isFocused) }), [visible, enabled, isHovered, isFocused]);
+  const debouncedRequest = useDebounce(request, 200);
+  const showPreview = request.active && debouncedRequest === request && !hasFailed;
+
+  useEffect(() => {
+    const region = scrollRegion.current;
+    if (!region) return;
+    // Scrolling under a stationary pointer is not an inspection request.
+    const stopHover = () => setIsHovered(false);
+    region.addEventListener("scroll", stopHover, { passive: true });
+    return () => region.removeEventListener("scroll", stopHover);
+  }, [scrollRegion]);
 
   useEffect(() => {
     const element = track.current;
@@ -158,31 +178,36 @@ export function CatalogModelPreview({ articleNumber, title, scrollRegion }: {
   }, [scrollRegion, enabled]);
 
   useLayoutEffect(() => {
-    if (visible && enabled) return registerCatalogView();
-  }, [visible, enabled]);
+    if (showPreview) return registerCatalogView();
+  }, [showPreview]);
 
-  return (
+  const preview = (
     <div
       ref={track}
       data-catalog-preview={articleNumber}
       role="img"
-      aria-label={`3D preview of ${title}`}
-      aria-busy={enabled && !isLoaded && !hasFailed}
+      aria-label={`${showPreview && isLoaded ? "3D preview" : "Furniture illustration"} of ${title}`}
+      aria-busy={showPreview && !isLoaded}
       className="relative h-32 shrink-0 overflow-hidden rounded-lg bg-slate-50"
     >
-      <div
-        aria-hidden="true"
-        className={`pointer-events-none absolute inset-0 bg-slate-100 transition-opacity duration-500 motion-reduce:transition-none ${isLoaded ? "opacity-0" : "opacity-100"} ${visible && enabled && !isLoaded && !hasFailed ? "motion-safe:animate-pulse" : ""}`}
+      {/* These small static drawings are already generated and served directly. */}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={thumbnail}
+        alt=""
+        width={720}
+        height={630}
+        loading="lazy"
+        decoding="async"
+        className={`pointer-events-none absolute inset-0 h-full w-full object-contain transition-opacity duration-300 motion-reduce:transition-none ${showPreview && isLoaded ? "opacity-0" : "opacity-100"}`}
       />
-      {(!enabled || hasFailed) && (
-        <span className="absolute inset-0 flex items-center justify-center px-3 text-center text-xs text-slate-600">
-          Preview unavailable
-        </span>
+      {showPreview && !isLoaded && (
+        <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-slate-100/25 motion-safe:animate-pulse" />
       )}
-      {visible && enabled && (
+      {showPreview && (
         <View
           key={modelPath}
-          className={`pointer-events-none absolute inset-0 transition-opacity duration-500 ease-linear motion-reduce:transition-none ${isLoaded ? "opacity-100" : "opacity-0"}`}
+          className={`pointer-events-none absolute inset-0 transition-opacity duration-300 ease-linear motion-reduce:transition-none ${isLoaded ? "opacity-100" : "opacity-0"}`}
           style={{ pointerEvents: "none" }}
         >
           <PreviewCamera track={track} />
@@ -197,6 +222,26 @@ export function CatalogModelPreview({ articleNumber, title, scrollRegion }: {
         </View>
       )}
     </div>
+  );
+
+  return (
+    <li
+      aria-posinset={index + 1}
+      aria-setsize={total}
+      className="group absolute flex min-w-0 flex-col break-words rounded-2xl bg-white p-3 text-sm shadow-sm"
+      style={style}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseMove={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      onFocusCapture={(event) => {
+        if (event.target.matches(":focus-visible")) setIsFocused(true);
+      }}
+      onBlurCapture={(event) => {
+        if (!event.currentTarget.contains(event.relatedTarget)) setIsFocused(false);
+      }}
+    >
+      {children(preview)}
+    </li>
   );
 }
 

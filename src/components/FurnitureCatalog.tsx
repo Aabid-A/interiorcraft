@@ -198,14 +198,15 @@ export function FurnitureCatalog() {
           {filteredProducts.slice(start, end).map((product, offset) => {
             const index = start + offset;
             return (
-              <li key={product.articleNumber} aria-posinset={index + 1} aria-setsize={filteredProducts.length}
-                className="group absolute flex min-w-0 flex-col break-words rounded-2xl bg-white p-3 text-sm shadow-sm"
+              <CatalogModelPreview key={product.articleNumber} articleNumber={product.articleNumber} title={product.name}
+                thumbnail={product.thumbnail ?? "/og/kind-cabinet.png"} scrollRegion={scrollRegion} index={index} total={filteredProducts.length}
                 style={{ top: Math.floor(index / columns) * CATALOG_ROW_HEIGHT, left: `calc(${index % columns} * (100% + ${CATALOG_ROW_GAP}px) / ${columns})`, width: `calc((100% - ${(columns - 1) * CATALOG_ROW_GAP}px) / ${columns})`, height: CATALOG_CARD_HEIGHT }}>
+                {(preview) => <>
                 <button type="button" data-catalog-index={index} data-catalog-action="card" onClick={() => addToRoom(product)}
                   aria-label={`Add ${product.name} to room, ${product.category}${articlePrices[product.articleNumber] ? `, £${articlePrices[product.articleNumber]}` : ""}, ${product.dimensions.w} metres wide, ${product.dimensions.h} metres high, ${product.dimensions.d} metres deep`}
                   className="absolute inset-0 z-[1] cursor-pointer rounded-2xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-700" />
                 <div className="relative mb-3 shrink-0">
-                  <CatalogModelPreview articleNumber={product.articleNumber} title={product.name} scrollRegion={scrollRegion} />
+                  {preview}
                   <Button type="button" size="icon" data-catalog-index={index} data-catalog-action="add" aria-label={`Add ${product.name} to room`} onClick={() => addToRoom(product)}
                     className="absolute bottom-3 right-3 z-50 min-h-11 min-w-11 rounded-full border-0 bg-white text-slate-900 shadow-sm opacity-0 transition-opacity duration-200 hover:bg-slate-100 group-hover:opacity-100 group-focus-within:opacity-100 focus-visible:opacity-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-900 motion-reduce:transition-none [@media(hover:none)]:opacity-100 [@media(pointer:coarse)]:opacity-100"
                     style={{ pointerEvents: "auto" }}><Plus aria-hidden="true" className="size-5" /></Button>
@@ -213,7 +214,8 @@ export function FurnitureCatalog() {
                 <h3 title={product.name} className="line-clamp-2 h-10 shrink-0 text-sm font-semibold leading-5 text-slate-900">{product.name}</h3>
                 <p title={product.category} className="mt-1 line-clamp-2 h-8 shrink-0 text-xs leading-4 text-slate-600">{product.category}</p>
                 <p className="mt-1 h-5 shrink-0 text-sm leading-5 text-slate-600">{articlePrices[product.articleNumber] ? `£${articlePrices[product.articleNumber]}` : ""}</p>
-              </li>
+                </>}
+              </CatalogModelPreview>
             );
           })}
         </ul> : <div className="flex min-h-56 flex-col items-center justify-center px-4 text-center"><h3 className="text-base font-semibold">No matching furniture</h3><p className="mt-2 max-w-sm text-sm leading-6 text-slate-600">Try a different name or article number, or choose another category.</p></div>}
