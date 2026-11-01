@@ -9,8 +9,8 @@ import { IArrowRight, IBox, ICheck, ISound } from "../art/Icons";
 /*
  * One real step (KALLAX 2 × 2, step 2: stand the divider on the dowels),
  * drawn twice from the same geometry: as the booklet in the box prints it,
- * and as Bygga shows it. Numbered pins pair each question the paper leaves
- * open with the part of Bygga's drawing that answers it.
+ * and as Makan3D shows it. Numbered pins pair each question the paper leaves
+ * open with the part of Makan3D's drawing that answers it.
  */
 
 const C = Math.cos(Math.PI / 6);
@@ -53,13 +53,13 @@ const ZOOM = { cx: 790, cy: 168, r: 92 };
 const LETTER_A = P([96, 26, 30]);
 const LETTER_B = P([8, 200, 30]);
 
-/* each side's frame, in the drawing's own units: Bygga's is wider to fit the close-up */
+/* each side's frame, in the drawing's own units: Makan3D's is wider to fit the close-up */
 type Box = { x: number; y: number; w: number; h: number };
 const VB: Record<"paper" | "bygga", Box> = { paper: { x: 196, y: 16, w: 600, h: 524 }, bygga: { x: 206, y: 16, w: 712, h: 524 } };
 const PAPER_NUM = { x: 216, y: 40 };
 const PAPER_HW = { x: 216, y: 86 };
 
-/** The three questions, where they sit on each drawing, and Bygga's answer. */
+/** The three questions, where they sit on each drawing, and Makan3D's answer. */
 const QA: { q: string; a: string; paper: [number, number]; bygga: [number, number] | null }[] = [
   { q: "Two of which piece?", a: "Every part is lettered and counted.", paper: [PAPER_HW.x + 92, PAPER_HW.y], bygga: null },
   { q: "Which way round?", a: "Drag the step to see any side.", paper: [548, 132], bygga: [548, 132] },
@@ -84,7 +84,7 @@ export default function Compare() {
         <h2 className="sec-title" id="compare-title">
           The paper manual, explained
         </h2>
-        <p className="cmp-sub">A KALLAX step redrawn in the style of the paper booklet, next to the same step on Bygga.</p>
+        <p className="cmp-sub">A KALLAX step redrawn in the style of the paper booklet, next to the same step on Makan3D.</p>
       </div>
 
       <div className="cmp-pair" style={{ gridTemplateColumns: `${VB.paper.w}fr ${VB.bygga.w}fr` }}>
@@ -104,7 +104,7 @@ export default function Compare() {
         </figure>
 
         <figure className="cmp-card bygga">
-          <figcaption className="cmp-tag bygga">On Bygga</figcaption>
+          <figcaption className="cmp-tag bygga">On Makan3D</figcaption>
           <div className="cmp-art" style={{ aspectRatio: `${VB.bygga.w} / ${VB.bygga.h}` }}>
             <svg viewBox={`${VB.bygga.x} ${VB.bygga.y} ${VB.bygga.w} ${VB.bygga.h}`} aria-hidden="true">
               <Scene style="bygga" />

@@ -24,16 +24,16 @@ const display = Noto_Sans_Display({
   display: "swap",
 });
 
-const description = "Type the product name from the box. Bygga shows every assembly step in 3D, with the parts, screws and tools for each one, and reads it out loud.";
+const description = "Design your space with halal-certified 3D assets and elegant simplicity.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
-  title: "Bygga: build IKEA furniture, step by step",
+  title: "Makan 3D | Premium Space Planning",
   description,
-  applicationName: "Bygga",
-  appleWebApp: { capable: true, title: "Bygga", statusBarStyle: "default" },
-  openGraph: { type: "website", siteName: "Bygga", title: "Bygga: build IKEA furniture, step by step", description, url: "/" },
-  twitter: { card: "summary_large_image", title: "Bygga: build IKEA furniture, step by step", description },
+  applicationName: "Makan3D",
+  appleWebApp: { capable: true, title: "Makan3D", statusBarStyle: "default" },
+  openGraph: { type: "website", siteName: "Makan3D", title: "Makan 3D | Premium Space Planning", description, url: "/" },
+  twitter: { card: "summary_large_image", title: "Makan 3D | Premium Space Planning", description },
 };
 
 export const viewport: Viewport = {

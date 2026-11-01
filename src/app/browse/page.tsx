@@ -5,7 +5,7 @@ import { Catalog } from "@/components/home/Sections";
 import { PRODUCT_COUNT } from "@/lib/search";
 import { PRODUCTS } from "@/lib/catalog";
 
-export const metadata: Metadata = { title: "All guides | Bygga", alternates: { canonical: "/browse" } };
+export const metadata: Metadata = { title: "All guides | Makan3D", alternates: { canonical: "/browse" } };
 
 export default function Page() {
   return (

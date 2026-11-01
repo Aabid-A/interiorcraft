@@ -5,7 +5,7 @@ import SiteFooter from "@/components/SiteFooter";
 import { Figure } from "@/components/art/Figure";
 import { HeroSearch } from "@/components/home/HomeClient";
 
-export const metadata: Metadata = { title: "Page not found | Bygga", robots: { index: false } };
+export const metadata: Metadata = { title: "Page not found | Makan3D", robots: { index: false } };
 
 export default function NotFound() {
   return (

@@ -3,9 +3,9 @@ import type { MetadataRoute } from "next";
 /** Add to home screen: opens straight into the search, full screen, in the page's own colours. */
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "Bygga: build IKEA furniture, step by step",
-    short_name: "Bygga",
-    description: "IKEA furniture assembly in 3D, step by step, read out loud.",
+    name: "Makan 3D | Premium Space Planning",
+    short_name: "Makan3D",
+    description: "Design your space with halal-certified 3D assets and elegant simplicity.",
     start_url: "/",
     display: "standalone",
     background_color: "#f5f4f0",

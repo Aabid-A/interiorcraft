@@ -237,7 +237,7 @@ export function mediaSession(meta: { title: string; artist: string }, on: { next
   if (typeof navigator === "undefined" || !("mediaSession" in navigator)) return () => {};
   const ms = navigator.mediaSession;
   try {
-    ms.metadata = new MediaMetadata({ title: meta.title, artist: meta.artist, album: "Bygga" });
+    ms.metadata = new MediaMetadata({ title: meta.title, artist: meta.artist, album: "Makan3D" });
   } catch {
     /* MediaMetadata missing */
   }

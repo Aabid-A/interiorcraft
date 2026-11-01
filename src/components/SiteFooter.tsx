@@ -55,7 +55,7 @@ export default function SiteFooter() {
       </div>
 
       <div className="foot-base">
-        <p>Bygga is an independent, unofficial project. It is not affiliated with, sponsored or endorsed by Inter IKEA Systems B.V. or any IKEA company. IKEA and IKEA product names are trademarks of their owners.</p>
+        <p>Makan3D is an independent, unofficial project. It is not affiliated with, sponsored or endorsed by Inter IKEA Systems B.V. or any IKEA company. IKEA and IKEA product names are trademarks of their owners.</p>
         <a className="foot-powered" href="https://togetherai.link/" target="_blank" rel="noreferrer">
           <span>Powered by</span>
           <TogetherWordmark height={19} className="tg-word" />

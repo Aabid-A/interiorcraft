@@ -6,7 +6,7 @@ import SiteFooter from "@/components/SiteFooter";
 import Scanner from "@/components/scan/Scanner";
 
 export const metadata: Metadata = {
-  title: "Scan a manual | Bygga",
+  title: "Scan a manual | Makan3D",
   description: "Photograph any assembly manual and Together AI turns it into a step by step guide in 3D.",
 };
 

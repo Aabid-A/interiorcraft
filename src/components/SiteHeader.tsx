@@ -26,7 +26,7 @@ async function GithubStars() {
 
 function GithubLink({ stars }: { stars: number | null }) {
   return (
-    <a className="gh" href={GITHUB_URL} target="_blank" rel="noreferrer" aria-label={stars === null ? "Star Bygga on GitHub" : `Star Bygga on GitHub, ${stars} ${stars === 1 ? "star" : "stars"} so far`}>
+    <a className="gh" href={GITHUB_URL} target="_blank" rel="noreferrer" aria-label={stars === null ? "Star Makan3D on GitHub" : `Star Makan3D on GitHub, ${stars} ${stars === 1 ? "star" : "stars"} so far`}>
       <span className="gh-main">
         <IGithub size={17} />
         <span className="gh-label">Star</span>

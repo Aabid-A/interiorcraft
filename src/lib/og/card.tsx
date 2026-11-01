@@ -10,7 +10,7 @@ import { TogetherStamp } from "./factory";
  * display face, one yellow highlight, and the app's real line art.
  *
  * - The site card stacks the KALLAX booklet page behind the same step on
- *   Bygga (both captured from the home page's comparison, public/og/hero-*.png).
+ *   Makan3D (both captured from the home page's comparison, public/og/hero-*.png).
  * - A guide card lays the product on a white sheet that runs off the edge,
  *   drawn by the real engine (public/og/{slug}.png, scripts/og/render.mjs).
  */
@@ -38,13 +38,22 @@ export async function drawing(name: string) {
   return `data:image/png;base64,${(await readFile(file)).toString("base64")}`;
 }
 
-/** The logo mark: an Allen bolt head seen from above. */
+/** The brand mark, rendered without client hooks for social images. */
 function Mark({ size }: { size: number }) {
   return (
-    <svg viewBox="0 0 32 32" width={size} height={size}>
-      <circle cx="16" cy="16" r="15.5" fill={INK} />
-      <path d="M16 6.2 L24.5 11.1 L24.5 20.9 L16 25.8 L7.5 20.9 L7.5 11.1 Z" fill={ACCENT} stroke={ACCENT} strokeWidth="2.2" strokeLinejoin="round" />
-      <path d="M16 11.2 L20.2 13.6 L20.2 18.4 L16 20.8 L11.8 18.4 L11.8 13.6 Z" fill={INK} stroke={INK} strokeWidth="1.4" strokeLinejoin="round" />
+    <svg viewBox="0 0 100 100" width={size} height={size}>
+      <defs>
+        <linearGradient id="makan-og-bg" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#0f172a" />
+          <stop offset="100%" stopColor="#064e3b" />
+        </linearGradient>
+      </defs>
+      <rect width="100" height="100" rx="22" fill="url(#makan-og-bg)" />
+      <path d="M50 28 L78 42 L50 56 L22 42 Z" fill="#34d399" opacity="0.85" />
+      <path d="M22 42 L50 56 L50 82 L22 68 Z" fill="#10b981" opacity="0.95" />
+      <path d="M78 42 L50 56 L50 82 L78 68 Z" fill="#059669" opacity="0.75" />
+      <circle cx="50" cy="48" r="4" fill="white" opacity="0.9" />
+      <path d="M50 48 L50 65" stroke="white" strokeWidth="1.5" strokeDasharray="2,2" opacity="0.8" />
     </svg>
   );
 }
@@ -53,7 +62,7 @@ function Logo() {
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 13 }}>
       <Mark size={46} />
-      <span style={{ fontFamily: "Display", fontSize: 40, fontWeight: 800, letterSpacing: "-0.045em", paddingBottom: 4 }}>bygga</span>
+      <span style={{ fontFamily: "Display", fontSize: 40, fontWeight: 800, letterSpacing: "-0.045em", paddingBottom: 4 }}>Makan3D</span>
     </div>
   );
 }
@@ -92,7 +101,7 @@ export function siteCard() {
   const H = 84;
   return render(
     <div style={{ width: "100%", height: "100%", display: "flex", position: "relative", background: PAGE, fontFamily: "Sans", color: INK, overflow: "hidden" }}>
-      {/* the booklet page, tilted back, and the same step on Bygga in front of it */}
+      {/* the booklet page, tilted back, and the same step on Makan3D in front of it */}
       {back && (
         // eslint-disable-next-line @next/next/no-img-element
         <img
