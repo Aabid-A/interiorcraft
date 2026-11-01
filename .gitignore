@@ -57,6 +57,7 @@ next-env.d.ts
 # local agent sessions and worktrees
 .claude/
 
-# downloaded product models (npm run models:scrape)
-/public/models/
+# Downloaded GLB models are versioned with Git LFS. Other source formats stay local.
+/public/models/*
+!/public/models/*.glb
 /processed_ids.log

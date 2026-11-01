@@ -1,5 +1,43 @@
 # Downloading product models
 
+## Hosting models with Git LFS
+
+The 3,047 GLB models in `public/models` are tracked with Git LFS and served by
+Next.js at `/models/[article].glb`. Both the room and hover previews use these
+same-origin paths. No Blob token or external asset URL is needed for deployment.
+
+Install Git LFS before adding or checking out models:
+
+```sh
+git lfs install
+git lfs pull
+npm ci
+npm run build
+```
+
+The repository's `.gitattributes` tracks only `public/models/*.glb`. Git stores
+small LFS pointers while GitHub stores the actual binaries. Check an upload with
+`git lfs status` and `git lfs fsck`. A normal `git push` uploads required LFS
+objects through the local pre-push hook. Keep that hook installed.
+
+In Vercel, open the project settings, select **Git**, enable **Git Large File
+Storage (LFS)**, and redeploy after enabling it. This is a project setting, not
+a `vercel.json` option. Verify a deployed model URL returns binary GLB content,
+not a Git LFS pointer or a 404 page.
+The build validates every advertised GLB before compiling and fails with setup
+instructions if a file is missing or still contains an LFS pointer.
+
+References: [Vercel LFS support](https://vercel.com/docs/project-configuration/git-settings)
+and [GitHub LFS usage](https://docs.github.com/en/billing/concepts/product-billing/git-lfs).
+The current collection is 3.36 GiB. GitHub's included storage and monthly download
+bandwidth apply, and fresh deployment downloads consume that bandwidth.
+
+New downloads must be staged through Git LFS. Raw IKEA listings, alternate USDZ
+files, processing logs, and local tokens stay out of Git. Existing Blob uploads
+are independent and are not deleted by this setup.
+
+## Download script
+
 The scraper reads article keys from the derived `src/data/room-catalog.json` catalog. It visits IKEA product pages with headless Playwright Chromium and extracts HTTPS `.glb` and `.usdz` URLs directly from the page HTML returned by `page.content()` after navigation. Query strings are preserved, and JSON escaped slashes, Unicode slash and ampersand escapes, and HTML entities are normalized without executing embedded scripts. It collects all matching candidates and tries GLB downloads first.
 
 Install Chromium once before running:
@@ -31,4 +69,4 @@ Before navigating, each page installs a request route that aborts images, styles
 
 Each article has a 30 second navigation timeout, waits only for `domcontentloaded`, then immediately reads the page HTML. It does not interact with viewer controls, inspect iframe content, wait for model responses or wait for network idle. A page without a matching source URL logs `[article] No model URL in page HTML` and moves on immediately. Each candidate download has a 30 second timeout. Missing models and product failures are logged and skipped. Models whose URLs appear only after further JavaScript execution, an API response, iframe navigation or viewer interaction cannot be discovered by this source-only approach. Regional availability and access restrictions can also prevent discovery; a missing model does not stop the remaining articles.
 
-Downloaded models are local assets excluded from git. Review asset usage rights before distributing them. Installing the npm package does not install a browser or run the scraper.
+Downloaded GLB models are tracked through Git LFS; alternate USDZ files stay local. Review asset usage rights before distributing them. Installing the npm package does not install a browser or run the scraper.
