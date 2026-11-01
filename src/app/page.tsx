@@ -7,6 +7,7 @@ import { Logo } from "@/components/ui/Logo";
 import { FurnitureCatalog } from "@/components/FurnitureCatalog";
 import { ProjectControls } from "@/components/ProjectControls";
 import { StatsOverlay } from "@/components/StatsOverlay";
+import { RoomBasket } from "@/components/RoomBasket";
 import { useRoomStore } from "@/store/useRoomStore";
 import { RoomConfiguration } from "@/components/RoomConfiguration";
 import { LightingPopover } from "@/components/LightingPopover";
@@ -35,6 +36,7 @@ export default function Home() {
             <div><h1 className="text-lg text-slate-900 font-bold tracking-tight">Makan3D</h1><p className="text-xs text-stone-500">A space to make your own</p></div>
           </header>
           <RoomConfiguration />
+          <RoomBasket />
           <footer className="mt-auto flex items-center justify-between border-t border-stone-200 px-6 py-4 text-xs text-stone-500"><span>{placedItems.length} items placed</span><span>Makan3D</span></footer>
         </aside>
       </div>
