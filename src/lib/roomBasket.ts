@@ -1,4 +1,5 @@
 export interface BasketItem {
+  id: string;
   articleNumber: string;
   name: string;
 }
@@ -6,6 +7,7 @@ export interface BasketItem {
 export type ArticlePrices = Readonly<Record<string, string | number | undefined>>;
 
 export interface BasketLine extends BasketItem {
+  itemIds: string[];
   quantity: number;
   unitPricePence: number | null;
   totalPence: number | null;
@@ -30,10 +32,11 @@ export function buildRoomEstimate(items: readonly BasketItem[], prices: ArticleP
     const previous = grouped.get(item.articleNumber);
     if (previous) {
       previous.quantity += 1;
+      previous.itemIds.push(item.id);
       previous.totalPence = previous.unitPricePence === null ? null : previous.unitPricePence * previous.quantity;
     } else {
       const unitPricePence = priceInPence(Object.hasOwn(prices, item.articleNumber) ? prices[item.articleNumber] : undefined);
-      grouped.set(item.articleNumber, { ...item, quantity: 1, unitPricePence, totalPence: unitPricePence });
+      grouped.set(item.articleNumber, { ...item, itemIds: [item.id], quantity: 1, unitPricePence, totalPence: unitPricePence });
     }
   }
   const lines = [...grouped.values()];

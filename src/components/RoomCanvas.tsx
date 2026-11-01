@@ -245,9 +245,24 @@ export default function RoomCanvas({ onCaptureReady, isCinematicMode }: { onCapt
   const ambientLight = useRoomStore((state) => state.ambientLight);
   const environmentPreset = useRoomStore((state) => state.environmentPreset);
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const removeItem = useRoomStore((state) => state.removeItem);
   const activeId = placedItems.some((item) => item.id === selectedId)
     ? selectedId : placedItems.at(-1)?.id;
   const lightExtent = Math.max(dimensions.widthMeters, dimensions.depthMeters, 6);
+
+  useEffect(() => {
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key !== "Delete" && event.key !== "Backspace") return;
+      const target = event.target;
+      if (target instanceof HTMLElement && target.closest("input, textarea, select, button, [contenteditable='true']")) return;
+      if (isCinematicMode || !activeId) return;
+      event.preventDefault();
+      removeItem(activeId);
+      setSelectedId(null);
+    }
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [activeId, isCinematicMode, removeItem]);
 
   return (
     <div className="relative h-full w-full touch-none">

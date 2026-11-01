@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useId, useMemo, useRef, useState } from "react";
-import { ExternalLink, ShoppingBag } from "lucide-react";
+import { ExternalLink, ShoppingBag, Trash2 } from "lucide-react";
 import articlePrices from "../../public/prices.json";
 import { Button } from "@/components/ui/button";
 import { buildRoomEstimate, formatBasketPrice } from "@/lib/roomBasket";
@@ -10,6 +10,7 @@ import { useRoomStore } from "@/store/useRoomStore";
 export function RoomBasket() {
   const titleId = useId();
   const placedItems = useRoomStore((state) => state.placedItems);
+  const removeItem = useRoomStore((state) => state.removeItem);
   const estimate = useMemo(() => buildRoomEstimate(placedItems, articlePrices), [placedItems]);
   const [message, setMessage] = useState("");
   const [isTransferring, setIsTransferring] = useState(false);
@@ -76,7 +77,13 @@ export function RoomBasket() {
                 <p className="break-words font-medium leading-5">{line.name} <span className="whitespace-nowrap text-stone-500">×{line.quantity}</span></p>
                 <p className="mt-1 break-words text-xs tabular-nums text-stone-500">{line.articleNumber}{line.unitPricePence !== null ? ` · ${formatBasketPrice(line.unitPricePence)} each` : " · Price unavailable"}</p>
               </div>
-              <span className="shrink-0 pt-0.5 text-xs font-medium tabular-nums text-stone-700">{line.totalPence === null ? "Unavailable" : formatBasketPrice(line.totalPence)}</span>
+              <div className="flex shrink-0 items-start gap-2">
+                <span className="pt-0.5 text-xs font-medium tabular-nums text-stone-700">{line.totalPence === null ? "Unavailable" : formatBasketPrice(line.totalPence)}</span>
+                <button type="button" aria-label={`Remove one ${line.name}`} title="Remove one" onClick={() => removeItem(line.itemIds.at(-1) ?? line.itemIds[0])}
+                  className="rounded-md p-1 text-stone-400 hover:bg-red-50 hover:text-red-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-red-700">
+                  <Trash2 size={14} aria-hidden="true" />
+                </button>
+              </div>
             </li>
           ))}
         </ul>

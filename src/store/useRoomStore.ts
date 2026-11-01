@@ -36,6 +36,7 @@ interface RoomState {
   setAmbientLight: (intensity: number) => void;
   setEnvironmentPreset: (preset: EnvironmentPreset) => void;
   addItem: (item: PlacedItem) => boolean;
+  removeItem: (id: string) => void;
   updateItemTransform: (id: string, position: PlacedItem["position"], rotation: number) => void;
   importLayout: (layout: unknown) => string | null;
 }
@@ -139,6 +140,9 @@ export const useRoomStore = create<RoomState>((set) => ({
     });
     return added;
   },
+  removeItem: (id) => set((state) => ({
+    placedItems: state.placedItems.filter((item) => item.id !== id),
+  })),
   updateItemTransform: (id, position, rotation) => set((state) => {
     const current = state.placedItems.find((item) => item.id === id);
     if (!current) return state;
