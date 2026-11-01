@@ -248,7 +248,7 @@ export default function RoomCanvas({ onCaptureReady }: { onCaptureReady: Capture
   const lightExtent = Math.max(dimensions.widthMeters, dimensions.depthMeters, 6);
 
   return (
-    <div className="relative h-full w-full">
+    <div className="relative h-full w-full touch-none">
       <Canvas
         shadows
         frameloop="demand"
