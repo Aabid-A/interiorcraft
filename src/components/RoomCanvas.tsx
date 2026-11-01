@@ -183,7 +183,7 @@ function RoomGeometry() {
   );
 }
 
-function RoomCamera() {
+function RoomCamera({ isCinematicMode }: { isCinematicMode: boolean }) {
   const dimensions = useRoomStore((state) => state.roomDimensions);
   const camera = useThree((state) => state.camera);
   const aspect = useThree((state) => state.size.width / state.size.height);
@@ -209,6 +209,8 @@ function RoomCamera() {
   return (
     <OrbitControls
       makeDefault
+      autoRotate={isCinematicMode}
+      autoRotateSpeed={0.5}
       target={[0, WALL_HEIGHT / 2, 0]}
       enableDamping
       dampingFactor={0.08}
@@ -236,7 +238,7 @@ function CaptureBridge({ onCaptureReady }: { onCaptureReady: CaptureReady }) {
   return null;
 }
 
-export default function RoomCanvas({ onCaptureReady }: { onCaptureReady: CaptureReady }) {
+export default function RoomCanvas({ onCaptureReady, isCinematicMode }: { onCaptureReady: CaptureReady; isCinematicMode: boolean }) {
   const dimensions = useRoomStore((state) => state.roomDimensions);
   const placedItems = useRoomStore((state) => state.placedItems);
   const exposure = useRoomStore((state) => state.exposure);
@@ -251,11 +253,13 @@ export default function RoomCanvas({ onCaptureReady }: { onCaptureReady: Capture
     <div className="relative h-full w-full touch-none">
       <Canvas
         shadows
-        frameloop="demand"
+        frameloop={isCinematicMode ? "always" : "demand"}
         dpr={[1, 2]}
         camera={{ position: [8, 8, 8], fov: 40, near: 0.1, far: 150 }}
         gl={{ antialias: true, preserveDrawingBuffer: true, toneMappingExposure: exposure }}
-        aria-label={"Interactive 3D room. Select furniture and drag its arrows or square to move it. Press R to toggle rotation and drag the ring to turn it. Press T to move. Drag the room to orbit, scroll to zoom, and right-drag to pan."}
+        aria-label={isCinematicMode
+          ? "Cinematic 3D room view. The camera slowly orbits your room. Press Escape or use Exit to return to editing."
+          : "Interactive 3D room. Select furniture and drag its arrows or square to move it. Press R to toggle rotation and drag the ring to turn it. Press T to move. Drag the room to orbit, scroll to zoom, and right-drag to pan."}
       >
         {/* Optional reflections must not suspend or crash the room. */}
         <RendererExposure exposure={exposure} />
@@ -281,14 +285,14 @@ export default function RoomCanvas({ onCaptureReady }: { onCaptureReady: Capture
             shadow-normalBias={0.03}
           />
           <RoomGeometry />
-          <RoomCamera />
+          <RoomCamera isCinematicMode={isCinematicMode} />
           <CaptureBridge onCaptureReady={onCaptureReady} />
           {placedItems.map((item) => (
             <PlacedItemMesh
               key={item.id}
               item={item}
-              selected={item.id === activeId}
-              onSelect={() => setSelectedId(item.id)}
+              selected={!isCinematicMode && item.id === activeId}
+              onSelect={() => { if (!isCinematicMode) setSelectedId(item.id); }}
             />
           ))}
         </Suspense>
